@@ -1,0 +1,28 @@
+[package]
+name = "battleship"
+version = "0.1.0"
+authors = ["Serhjii Bilyk <sergiybiluk@gmail.com>"]
+edition = "2018"
+
+
+[lib]
+name = "battleship"
+path = "src/lib.rs"
+
+[[bin]]
+name = "battleship"
+doc = false
+path = "src/main.rs"
+
+
+[dependencies]
+rand = "0.8.3"
+getrandom = { version = "0.2.2", features = ["js"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+[dev-dependencies.cargo-husky]
+version = "1"
+default-features = false 
+features = ["precommit-hook","run-cargo-test", "run-cargo-clippy"]
