@@ -57,7 +57,7 @@ impl Game {
         let player_a = player::Player::new(&player_a_id, &player_a_name);
         let mediator = mediator::Mediator::new(player_a);        
         Game {
-            id: "0000000001".to_string(),
+            id: "0000000001".to_string(),  // Wil later use nanoid here to give the game a random id
             stake,
             mediator,            
             current_player_id: "".to_string(),
@@ -89,11 +89,11 @@ impl Game {
     }
 
     pub fn start(&mut self) {
-
+        // TODO
     }
 
     pub fn player_move(&mut self, player_id: String, point: structures::Point) {
-
+        // TODO
     }
 
     pub fn won(&mut self, player_id: &String) {

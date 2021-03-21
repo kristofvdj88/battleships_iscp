@@ -46,7 +46,7 @@ func TestCreateGame(t *testing.T) {
 	userAgentID := coretypes.NewAgentIDFromAddress(userAddress)
 	t.Logf("userAgentID: %s", userAgentID)
 
-	// Create a request to the "create_game" function endpoint of the SC and post the request to the L1 Tangle
+	// Create a request to the "create_game" function endpoint of the SC and post the request (to the L1 Tangle)
 	req := solo.NewCallParams(testconstants.ContractName, "create_game", "createGameRequestKey", testconstants.CreateGameRequest).
 			    WithTransfer(balance.ColorIOTA, 100)
 	_, err = chain.PostRequest(req, userWallet)
@@ -55,7 +55,7 @@ func TestCreateGame(t *testing.T) {
 	// Assert if the stake of 100 tokens is on chain, in the account of the contractAgentID
 	chain.AssertAccountBalance(contractAgentID, balance.ColorIOTA, 100)	
 
-	// Create a request to the "get_game" view endpoint of the SC and post the request to the L2 chain
+	// Post a request to the "get_game" view endpoint of the SC (to the L2 chain). A Responce will be received
 	res, err := chain.CallView(testconstants.ContractName, "get_game", "getGameRequestKey", testconstants.GetGameRequest)	
 	require.NoError(t, err)
 	returnedString, exists, err := codec.DecodeString(res.MustGet("gameStateResponseKey"))

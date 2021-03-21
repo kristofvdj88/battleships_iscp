@@ -25,7 +25,7 @@ pub fn create_game(ctx: &ScFuncContext) {
     // Gets the provided stake that will be used in this game
     let stake = ctx.incoming().balance(&ScColor::IOTA) * 2;
 
-    // Create new game
+    // Create a new game
     let game = Game::new(&caller_agent_id, &req_body.player_name, stake);
     ctx.log(&format!("Game {} was created by player {}", game.id, req_body.player_name)[..]);
 
@@ -60,7 +60,7 @@ pub fn join_game(ctx: &ScFuncContext) {
     // Check if the provided stake of the new player is correct
     let stake = ctx.incoming().balance(&ScColor::IOTA) * 2;
     if game.stake != stake {
-        ctx.log(&format!("Player {} requested to join game {}, but supplied an incorrect stake amount. The stake of this game equals {}", &req_body.player_name, game.id, stake.to_string())[..]);
+        ctx.log(&format!("Player {} requested to join game {}, but supplied an incorrect stake. The stake of this game equals {}", &req_body.player_name, game.id, stake.to_string())[..]);
         return;
     }        
 
@@ -280,19 +280,42 @@ fn validate_request(ctx: &ScFuncContext, game: &Game, req_game_id: String) -> bo
         return false
     }
 
-    // Check if a SC game state player id matches the request caller_agent_id, return if not
-    let caller_agent_id = ctx.caller().to_string();    
-    if game.mediator.player_a.as_ref().unwrap().id != caller_agent_id
-    && game.mediator.player_b.as_ref().unwrap().id != caller_agent_id {
-        ctx.log(&format!("Player {} not found in game {}.", caller_agent_id, game.id)[..]);
-        return false
-    }
-
     // Check if game is already settled
     if game.is_settled() {
         ctx.log(&format!("Game {} has already been settled. It was won by {}.", game.id, game.winner_id)[..]);
         return false
     }
 
+    // Check if a SC game state player id matches the request caller_agent_id, return if not
+    let caller_agent_id = ctx.caller().to_string();    
+    if (game.mediator.player_a.is_some() && game.mediator.player_a.as_ref().unwrap().id != caller_agent_id)
+    && (game.mediator.player_b.is_some() && game.mediator.player_b.as_ref().unwrap().id != caller_agent_id) {
+        ctx.log(&format!("Player {} not found in game {}.", caller_agent_id, game.id)[..]);
+        return false
+    }    
+
     true
+}
+
+fn settle_game(ctx: ScFuncContext, game: Game) {
+    // Send all staked tokens of this game to the winner
+    ctx.log(&format!("Player {} has won game {}.", game.winner_id, game.id)[..]);
+    let winner_id_vec = ctx.utility().base58_decode(&game.winner_id[..]);    
+    let winner_id_arr = vector_as_u8_array(winner_id_vec);
+    let winner = ScAgentId::from_bytes(&winner_id_arr);
+    let bal = ctx.balances().balance(&ScColor::IOTA);
+    if bal >= game.stake {
+        ctx.transfer_to_address(&winner.address(), &ScTransfers::new(&ScColor::IOTA, game.stake))
+    }
+
+    //TODO: add functionality to be able to host several active games at once and remove usage of SETTLED_GAMES_STATE
+    // Remove the game from the active game state 
+    ctx.state().get_string(ACTIVE_GAME_STATE).set_value("");
+
+    // Save the game to the settled games state
+    let mut settled_game_str = ctx.state().get_string(SETTLED_GAMES_STATE).value();
+    let mut settled_games: SettledGames = serde_json::from_str(&settled_game_str).unwrap();
+    settled_games.games.push(game);
+    settled_game_str = serde_json::to_string(&settled_games).unwrap();
+    ctx.state().get_string(SETTLED_GAMES_STATE).set_value(&settled_game_str);
 }

@@ -1,5 +1,2 @@
-# Battleship
-Rust console game created for learning purpose
-
-## Issues:
-If vscode code formatting does not work, please take a look https://github.com/rust-lang/rls-vscode/issues/466
+# Battleships_iscp
+Small SC game created for the purpose of learning Rust and ISCP
