@@ -1,12 +1,10 @@
 package libtest
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/brunoamancio/IOTA-SmartContracts/tests/testutils"
 	"github.com/brunoamancio/IOTA-SmartContracts/tests/testutils/testconstants"
-	"github.com/iotaledger/goshimmer/dapps/valuetransfers/packages/address/signaturescheme"
 	"github.com/iotaledger/goshimmer/dapps/valuetransfers/packages/balance"
 	"github.com/iotaledger/wasp/packages/coretypes"
 	"github.com/iotaledger/wasp/packages/kv/codec"
@@ -18,9 +16,10 @@ import (
 //  See code samples in Tests/testutils/codesamples  //
 //  -----------------------------------------------  //
 
-func TestCreateGame(t *testing.T, userWallet signaturescheme.SignatureScheme) {
+func TestCreateGame(t *testing.T) {
 	contractWasmFilePath := testutils.MustGetContractWasmFilePath(t, testconstants.ContractName) // You can use if file is in SmartContract/pkg
 
+	// Setup Solo environment to create SC chain
 	env := solo.New(t, testconstants.Debug, testconstants.StackTrace)
 	chainName := testconstants.ContractName + "Chain"
 	chain := env.NewChain(nil, chainName)
@@ -40,6 +39,13 @@ func TestCreateGame(t *testing.T, userWallet signaturescheme.SignatureScheme) {
 	// contract id in the form of the agent ID
 	contractAgentID := coretypes.NewAgentIDFromContractID(contractID)
 
+	// create a user's wallet (private key) and request 1337 iotas from the faucet.
+	// It corresponds to L1 address
+	userWallet := env.NewSignatureSchemeWithFunds()
+	userAddress := userWallet.Address()
+	userAgentID := coretypes.NewAgentIDFromAddress(userAddress)
+	t.Logf("userAgentID: %s", userAgentID)
+
 	// Create a request to the "create_game" function endpoint of the SC and post the request to the L1 Tangle
 	req := solo.NewCallParams(testconstants.ContractName, "create_game", "createGameRequestKey", testconstants.CreateGameRequest).
 			    WithTransfer(balance.ColorIOTA, 100)
@@ -55,5 +61,5 @@ func TestCreateGame(t *testing.T, userWallet signaturescheme.SignatureScheme) {
 	returnedString, exists, err := codec.DecodeString(res.MustGet("gameStateResponseKey"))
 	require.NoError(t, err)
 	require.True(t, exists)
-	fmt.Println(returnedString)
+	t.Logf(returnedString)
 }
