@@ -14,14 +14,16 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-battleship = { path = "src/game" }
-iota_sc_utils = { path = "iota_sc_utils" }
-wasmlib = { path = "wasp/contracts/rust/wasmlib" }
 console_error_panic_hook = { version = "0.1.6", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
+
+iota_sc_utils = { git = "https://github.com/brunoamancio/IOTA-SC-Utils", tag = "v0.8.92"}
+
 nanoid = "0.3.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+battleship = { path = "src/game" }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

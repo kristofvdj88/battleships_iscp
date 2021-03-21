@@ -1,7 +1,5 @@
 #![allow(dead_code)]
 
-use wasmlib::*;
-
 pub const PARAM_CREATE_GAME_REQUEST: &str = "createGameRequestKey";
 pub const PARAM_JOIN_GAME_REQUEST: &str = "joinGameRequestKey";
 pub const PARAM_INIT_FIELD_REQUEST: &str = "initFieldRequestKey";
