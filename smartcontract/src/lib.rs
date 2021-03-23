@@ -1,12 +1,10 @@
-use wasmlib::*;
 use battleship_iscp::*;
+use iota_sc_utils::wasmlib::ScExports;
 
-mod consts;
 mod battleship_iscp;
-mod structures;
+mod consts;
 mod helpers;
-
-
+mod structures;
 
 #[no_mangle]
 fn on_load() {
@@ -18,8 +16,6 @@ fn on_load() {
     exports.add_func("init_field", init_field);
     exports.add_func("make_move", make_move);
     exports.add_func("quit_game", quit_game);
-    exports.add_func("contract_creator_only_function", contract_creator_only_function);
-    exports.add_func("chain_owner_only_function", chain_owner_only_function);
 
     // SC Views
     //exports.add_view("getGames", get_games);
